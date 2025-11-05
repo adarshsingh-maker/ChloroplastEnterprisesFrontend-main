@@ -16,18 +16,7 @@ import {postData} from '../../services/FetchNodeServices'
 import Swal from 'sweetalert2'
 import { useNavigate } from 'react-router-dom';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      {/* <Link color="inherit" href="https://numericinfosystem.com/">
-        Numeric Infosystems Pvt Ltd
-      </Link>{' '} */}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
