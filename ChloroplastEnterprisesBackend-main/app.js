@@ -11,6 +11,7 @@ var indexRouter = require('./routes/index');
 var gmailRouter = require('./routes/gmail');
 var adminRouter = require('./routes/admin');
 var superAdminRouter = require('./routes/superadmin');
+var companyRouter = require('./routes/company');
 var app = express();
 
 // view engine setup
@@ -29,6 +30,7 @@ app.use('/superadmin', superAdminRouter);
 app.use('/admin', adminRouter);
 app.use('/', indexRouter);
 app.use('/gmail', gmailRouter);
+app.use('/company', companyRouter);
 
 
 

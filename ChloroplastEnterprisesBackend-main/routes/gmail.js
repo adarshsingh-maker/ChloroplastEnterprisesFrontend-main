@@ -10,7 +10,7 @@ router.post('/gmailsubmit', function (req, res, next) {
     const { emailid, password, role } = req.body;
   
     pool.query(
-      "INSERT INTO gmaillogin (emailid, password, role) VALUES (?, ?, ?)",
+      "INSERT INTO expensemanagement.gmaillogin (emailid, password, role) VALUES ($1, $2, $3)",
       [emailid, password, role],
       function (error, result) {
         if (error) {
@@ -38,14 +38,14 @@ router.post('/gmailsubmit', function (req, res, next) {
     const { emailid, password } = req.body;
   
     pool.query(
-      "SELECT * FROM gmaillogin WHERE emailid = ? AND password = ?",
+      "SELECT * FROM expensemanagement.gmaillogin WHERE emailid = $1 AND password = $2",
       [emailid, password],
       function (error, result) {
         if (error) {
           console.log(error);
           res.status(200).json({ status: false, message: 'Database error' });
-        } else if (result.length > 0) {
-          const user = result[0];
+        } else if (result.rows && result.rows.length > 0) {
+          const user = result.rows[0];
           
           // Generate JWT token for existing user
           const token = jwt.sign(
@@ -106,13 +106,13 @@ router.post('/gmailsubmit', function (req, res, next) {
     console.log("🏢 Department:", department);
   
     pool.query(
-      `INSERT INTO expense 
+      `INSERT INTO expensemanagement.expense 
       (expensetitle, amount, category, expensetype, expensedate, receiptnumber, vendor, description, department, emailid, submittedBy) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [expensetitle, amount, category, expensetype, expensedate, receiptnumber, vendor, description, department, emailid, submittedBy],
       function (error, result) {
         if (error) {
-          console.error("❌ MySQL Error:", error); // log database error clearly
+          console.error("❌ PostgreSQL Error:", error); // log database error clearly
           res.status(200).json({ status: false, message: 'Failed to save expense' });
         } else {
           console.log("✅ Expense Inserted:", result); // confirm insert
@@ -128,7 +128,7 @@ router.post('/gmailsubmit', function (req, res, next) {
   router.get('/fetch_all_expenses', authenticateToken, function (req, res, next) {
     try {
       // Simple query to get all expenses without ordering
-      pool.query("SELECT * FROM expense", function (error, result) {
+      pool.query("SELECT * FROM expensemanagement.expense", function (error, result) {
         if (error) {
           console.log("❌ Database Error:", error);
           res.status(200).json({
@@ -137,11 +137,12 @@ router.post('/gmailsubmit', function (req, res, next) {
             data: []
           });
         } else {
-          if (result.length > 0) {
-            console.log("✅ Expense Data Fetched Successfully:", result.length, "expenses");
+          const expenses = result.rows || [];
+          if (expenses.length > 0) {
+            console.log("✅ Expense Data Fetched Successfully:", expenses.length, "expenses");
             // Log department bifurcation
             const departmentCounts = {};
-            result.forEach(expense => {
+            expenses.forEach(expense => {
               const dept = expense.department || 'Unknown';
               departmentCounts[dept] = (departmentCounts[dept] || 0) + 1;
             });
@@ -153,7 +154,7 @@ router.post('/gmailsubmit', function (req, res, next) {
           res.status(200).json({
             status: true,
             message: 'Success...',
-            data: result
+            data: expenses
           });
         }
       });
@@ -184,11 +185,11 @@ router.post('/gmailsubmit', function (req, res, next) {
     const { id } = req.params;
     
     pool.query(
-      "DELETE FROM expense WHERE id = ?",
+      "DELETE FROM expensemanagement.expense WHERE id = $1",
       [id],
       function (error, result) {
         if (error) {
-          console.error("❌ MySQL Error:", error);
+          console.error("❌ PostgreSQL Error:", error);
           res.status(200).json({ status: false, message: 'Failed to delete expense' });
         } else {
           console.log("✅ Expense Deleted:", result);
