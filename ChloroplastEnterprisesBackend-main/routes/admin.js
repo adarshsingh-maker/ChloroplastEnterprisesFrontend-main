@@ -1,27 +1,54 @@
 var express = require('express');
 var router = express.Router();
-var pool = require("./pool")
-var jwt=require('jsonwebtoken')
+var pool = require('./pool');
+var jwt = require("jsonwebtoken");
 
-/* GET home page. */
+const SECRET_KEY = "your-secret-key-12345"; // Should be in .env file
+
+/* POST - Admin Login */
 router.post('/checklogin', function (req, res, next) {
-  pool.query('select *from restaurants where emailid=? and password=?', [req.body.emailid, req.body.password], function (error, result) {
-    if (error) {
-      console.log(error)
-      res.status(500).json({ status: false, data: [], message: 'Server Error....' })
-    }
-    else {
-      if (result.length == 1) {
-        var token=jwt.sign({data:result[0]},'shhhhh...')
-        res.status(200).json({ status: true, data: result[0], message: 'Login Successful' })
-      }
-      else {
-        res.status(200).json({ status: false, data: [], message: 'Invalid UserId/Password ' })
-      }
+  const { emailid, password } = req.body;
 
-    }
+  pool.query(
+    "SELECT * FROM expensemanagement.restaurants WHERE emailid=$1 AND password=$2", 
+    [emailid, password], 
+    function (error, result) {
+      if (error) {
+        console.error('PostgreSQL Error:', error);
+        res.status(500).json({ 
+          status: false, 
+          message: 'Database error occurred' 
+        });
+      } else {
+        if (result.rows.length === 1) {
+          // Generate JWT token
+          const token = jwt.sign(
+            { 
+              id: result.rows[0].id,
+              emailid: result.rows[0].emailid,
+              restaurantname: result.rows[0].restaurantname,
+              role: 'ADMIN'
+            },
+            SECRET_KEY,
+            { expiresIn: '24h' }
+          );
 
-  })
+          res.status(200).json({ 
+            status: true, 
+            message: 'Login successful',
+            data: result.rows[0],
+            token: token
+          });
+        } else {
+          res.status(200).json({ 
+            status: false, 
+            message: 'Invalid email or password' 
+          });
+        }
+      }
+    }
+  );
 });
 
 module.exports = router;
+

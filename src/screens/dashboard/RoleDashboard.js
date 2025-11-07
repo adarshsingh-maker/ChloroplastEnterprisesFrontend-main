@@ -475,6 +475,12 @@ export default function RoleDashboard() {
     return inrAmount / usdConversionRate;
   };
 
+  // Extract username from email (remove @gmail.com or any domain)
+  const getUsername = (email) => {
+    if (!email) return 'User';
+    return email.split('@')[0];
+  };
+
   const filterExpensesBySearch = (expensesList, searchQuery) => {
     if (!searchQuery.trim()) return expensesList;
     
@@ -681,7 +687,7 @@ export default function RoleDashboard() {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Box>
             <Typography variant="h6" component="h1">
-              Welcome, {userData?.emailid}
+              Welcome, {getUsername(userData?.emailid)}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {userData?.role === 'SUPER_ADMIN' ? 'Super Admin Dashboard' : `${roleLabels[userData?.role]} Department`}

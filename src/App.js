@@ -5,6 +5,7 @@ import AdminDashboard from "./screens/admin/AdminDashboard"
 import GmailLogin from "./screens/gmail/GmailLogin"
 import RoleDashboard from "./screens/dashboard/RoleDashboard"
 import ExpenseForm from "./screens/expense/ExpenseForm"
+import CompanyForm from "./screens/company/CompanyForm"
 
 import { BrowserRouter as Router,Route,Routes } from "react-router-dom";
 
@@ -25,6 +26,9 @@ function App() {
           <Route element={<GmailLogin/>} path='/gmaillogin' />
           <Route element={<RoleDashboard/>} path='/dashboard' />
           <Route element={<ExpenseForm/>} path='/expense-form' />
+          
+          {/* Company Management Route */}
+          <Route element={<CompanyForm/>} path='/companyform' />
         </Routes>
       </Router>
     </div>
